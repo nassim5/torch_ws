@@ -20,52 +20,52 @@ The command to run the main:
 
 * Maze parameters
 
-- --maze_name: In case maze already created, give the name of the file
+  - --maze_name: In case maze already created, give the name of the file
 
-- --size_x_maze: Size of length of the maze
+  - --size_x_maze: Size of length of the maze
 
-- --size_y_maze: Size of width of the maze
+  - --size_y_maze: Size of width of the maze
 
-- --size_min_wall: Minimum size of walls
+  - --size_min_wall: Minimum size of walls
 
-- --size_max_wall: Maximum size of walls
+  - --size_max_wall: Maximum size of walls
 
-- --nb_walls: Number of walls
+  - --nb_walls: Number of walls
 
-- --nb_colors: number of colors of walls
-
-
-Agent parameters
-
---turn_angle: The defined turning angle of the agent
-
---sensor_angle_min: The minimum range of the sensors
-
---sensor_angle_max: The maximum range of the sensors
-
---resolution: Resolution of sensors
+  - --nb_colors: number of colors of walls
 
 
-Model Parameters
+* Agent parameters
 
---budget: Number of actions allowed in the model
+  - --turn_angle: The defined turning angle of the agent
 
---lrc: Learning Rate of Classifier
+  - --sensor_angle_min: The minimum range of the sensors
 
---lra: Learning Rate of Action selection
+  - --sensor_angle_max: The maximum range of the sensors
 
---N: Size of latent state
+  - --resolution: Resolution of sensors
 
---type_transformation: Type of cell for the transformations, can be RNN or GRU
 
---nb_iteration: Number of learning iterations
+* Model Parameters
 
---type_policy: Type of applied policy, can be forced or free
+  - --budget: Number of actions allowed in the model
 
---train_size: Size of train data
+  - --lrc: Learning Rate of Classifier
 
---test_size: Size of test data
+  - --lra: Learning Rate of Action selection
 
---valid_size: Size of valid data
+  - --N: Size of latent state
 
---init_dist: Parameter for uniform initialization of the model.
+  - --type_transformation: Type of cell for the transformations, can be RNN or GRU
+
+  - --nb_iteration: Number of learning iterations
+
+  - --type_policy: Type of applied policy, can be forced or free
+
+  - --train_size: Size of train data
+
+  - --test_size: Size of test data
+
+  - --valid_size: Size of valid data
+
+  - --init_dist: Parameter for uniform initialization of the model.
