@@ -7,9 +7,9 @@ function model:__init(type_net, state_rep, budget, type_policy, type_transformat
 	self.budget = budget
 	self.agent=agent
 
-	-- Je crée un module par action
+	-- Create a module by action
 	local state_module = {}
-	-- Dans ce cas ce sont de module RNN ( f = tanh(Zs+Zo) )
+	-- RNN modules ( f = tanh(Zs+Zo) )
 	if type_transformation == "RNN" then
 		for a = 1, 3 do
 			local in1 = nn.Identity()()
@@ -21,8 +21,8 @@ function model:__init(type_net, state_rep, budget, type_policy, type_transformat
 			state_module[a] = nn.gModule({in1,in2},{tan})
 		end
 
+	-- GRU modules
 	elseif type_transformation == "GRU" then
-		-- Dans ce cas ce sont des GRU
 		for a=1,3 do
 			local prev_s = nn.Identity()()
 			local obs = nn.Identity()()
@@ -58,7 +58,7 @@ function model:__init(type_net, state_rep, budget, type_policy, type_transformat
 		print("unknown transform")
 		os.exit()
 	end
-	-- Je clone le module dans une table de la taille de la trajectoire (budget)
+	-- Clone the modules according to budget to create the recursion
 	self.table_of_state_modules = {}
 	for b = 1, self.budget do
 		self.table_of_state_modules[b] = {}
@@ -70,17 +70,17 @@ function model:__init(type_net, state_rep, budget, type_policy, type_transformat
 	-- SoftMax Module
 	self.sm = nn.SoftMax()
 
-	-- Je declare un module d'action
+	-- Action module
 	module_action = nn.Sequential():add(nn.Linear(self.N,3))
 
-	-- Je clone le module d'action dans une table de la taille de la trajectoire
+	-- Cloning action modules
 	self.action_modules = {}
 	for a =1, self.budget do
 		self.action_modules[a] = module_action:clone()
 	end
 end
 
--- Function of model initialization
+-- Initialze modules
 function model:reset(stdv)
 	for j=1,self.budget do
 		for i =1,3 do
@@ -90,7 +90,7 @@ function model:reset(stdv)
 	end
 end
 
--- Reinitialization of the gradients
+-- Gradient reinitialization
 function model:zeroGradParameters()
 	for j=1,self.budget do
 		for i =1,3 do
@@ -121,7 +121,7 @@ function model:forward(initial_state, policy)
 		-- Computing action probabilities
 		proba_actions[b] = self.sm:forward(out_action)
 
-		-- Choose the policy type
+		-- Choose action according to the policy type
 		if self.type_policy == 'free' then
 			action_chosen = torch.multinomial(proba_actions[b],1)[1]
 		elseif self.type_policy=="forced" then
@@ -134,12 +134,12 @@ function model:forward(initial_state, policy)
 		self.sm:zeroGradParameters()
 
 		history_actions[b]=action_chosen
-		-- Forward the observation dépendemment de l'observation
-		if action_chosen == 1 or action_chosen == 2 then -- cas gauche ou droite (dans ce cas la je donne une observation nulle)
+		-- Forward the observation
+		if action_chosen == 1 or action_chosen == 2 then -- case action left or right (Vector of zeroes)
 			self.agent:action(action_chosen)
 			observation[b] = torch.Tensor(self.agent.sensor_resolution*3):fill(0)
 			output_state[b] = self.table_of_state_modules[b][action_chosen]:forward({input_state[b],observation[b]})
-		elseif action_chosen == 3 then -- cas d'une image
+		elseif action_chosen == 3 then -- case of an image
 			observation[b] = self.agent:getImage()
 			output_state[b] = self.table_of_state_modules[b][3]:forward({input_state[b],observation[b]})
 		end
@@ -149,16 +149,15 @@ function model:forward(initial_state, policy)
 	return retour
 end
 
--- Backward on state modules
+-- Backward on state modules for the representation learning
 function model:backward_state_modules(retour, delta)
 	for b = self.budget, 1, -1 do
 		local action_chosen = retour.history_actions[b]
-		-- Je backward chaque module cloné
 		delta = self.table_of_state_modules[b][action_chosen]:backward({retour.input_state[b], retour.observation[b]}, delta)[1]
 	end
 end
 
--- Backward on action modules
+-- Backward on action modules for the action selection
 function model:backward_action_modules(retour, loss)
 	local c2 = nn.LogSoftMax()
 	for b = 1, self.budget do
@@ -174,7 +173,7 @@ function model:backward_action_modules(retour, loss)
 	end
 end
 
--- Update the parameters of the model
+-- Update the model
 function model:updateParameters(learningRateClassif, learningRateAction)
 	for b =1, self.budget do
 		for i=1, 3 do
