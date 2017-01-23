@@ -18,24 +18,21 @@ The command to run the main:
 
 [--options]:
 
-Maze parameters
+* Maze parameters
 
---maze_name: In case maze already created, give the name of the file
+- --maze_name: In case maze already created, give the name of the file
 
+- --size_x_maze: Size of length of the maze
 
-In case maze does not exist create a new one
+- --size_y_maze: Size of width of the maze
 
---size_x_maze: Size of length of the maze
+- --size_min_wall: Minimum size of walls
 
---size_y_maze: Size of width of the maze
+- --size_max_wall: Maximum size of walls
 
---size_min_wall: Minimum size of walls
+- --nb_walls: Number of walls
 
---size_max_wall: Maximum size of walls
-
---nb_walls: Number of walls
-
---nb_colors: number of colors of walls
+- --nb_colors: number of colors of walls
 
 
 Agent parameters
