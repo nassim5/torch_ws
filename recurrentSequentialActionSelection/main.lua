@@ -50,10 +50,10 @@ local policy = {3,1,3,1,3}
 
 opt=cmd:parse(arg or {})
 
--- Create maze if no maze given
+-- Use given maze
 if opt.maze_name~='' then
 	maze = torch.load(opt.maze_name)
--- or use the given maze
+-- or create a new one
 else
 	maze = maze(opt.size_x_maze, opt.size_y_maze, opt.size_min_wall, opt.size_max_wall, opt.nb_walls, opt.nb_colors)
 	torch.save("labyrinth"..opt.size_x_maze.."x"..opt.size_y_maze.."_"..opt.nb_walls..".maze", maze)
@@ -67,18 +67,12 @@ model = model('MLP', opt.N, opt.budget, opt.type_policy, opt.type_transformation
 -- Create Maze
 maze:createMaze()
 
--- Init classifier of the sequential model
+-- Init classifier
 local classifier = nn.Sequential():add(nn.Linear(opt.N,opt.N*2)):add(nn.Tanh()):add(nn.Linear(opt.N*2,nb_classe)):add(nn.Tanh())
 local criterion = nn.MSECriterion()
 
--- Init classifier of the unique data
-local nbIm = math.floor(opt.budget/2) + 1
-classifierUniqueData = nn.Sequential():add(nn.Linear(3*opt.resolution*nbIm,opt.N*2)):add(nn.Tanh()):add(nn.Linear(opt.N*2,nb_classe)):add(nn.Tanh())
-local criterionUniqueData = nn.MSECriterion()
-
--- Initialize the models and NNs
+-- Initialize the model
 model:reset(opt.init_dist)
-classifierUniqueData:reset(opt.init_dist)
 classifier:reset(opt.init_dist)
 
 
@@ -155,6 +149,7 @@ for i = 1, opt.valid_size do
 	valid_set[i] = feat
 end
 
+-- Create Log file
 local perfFileModel = assert(io.open("perf_model_"..opt.type_policy.."_"..opt.maze_name.."_"..math.sqrt(nb_classe).."_"..opt.train_size.."_"..opt.test_size.."_"..opt.resolution.."_"..opt.budget.."_"..opt.lrc.."_"..opt.lra.."_"..opt.type_transformation.."_"..opt.nb_iteration.."_"..opt.run_anno.."_test.csv","w"))
 
 local splitter="\t"
@@ -176,7 +171,8 @@ for i = 1, opt.nb_iteration do
 		classifier:zeroGradParameters()
 
 		agent:placeAgent(train_set[j][1],train_set[j][2], train_set[j][3])
-		-- Training Model
+		
+		-- Forward
 		local retour = model:forward(init_state,policy)
 		local y_predit = classifier:forward(retour.output_state[opt.budget])
 		local y = maze:getClass(math.sqrt(nb_classe),train_set[j][1],train_set[j][2])
@@ -184,6 +180,7 @@ for i = 1, opt.nb_iteration do
 		average_loss = (average_loss+loss)/j
 		local delta = criterion:backward(y_predit, y)
 
+		-- Backward
 		delta = classifier:backward(retour.output_state[opt.budget], delta)
 		model:backward_state_modules(retour, delta)
 		model:backward_action_modules(retour, loss)
@@ -192,6 +189,7 @@ for i = 1, opt.nb_iteration do
 			
 	end
 	if i%10 == 0 then
+		
 		-- Performance on train set
 		for j = 1, opt.train_size do
 
@@ -211,7 +209,7 @@ for i = 1, opt.nb_iteration do
 		print("train", ok_train)
 
 
-		-- Test Model and NN
+		-- Performance on test set
 		local ok_test = 0
 		local ok_test_unic = 0
 		local list_of_chosen_policies = {}
@@ -250,7 +248,7 @@ for i = 1, opt.nb_iteration do
 		print("Best Policy", best_policy)
 
 
-		-- Validation Model and NN
+		-- Performance on validation set
 		local ok_valid = 0
 		local ok_valid_unic = 0
 		for j = 1, opt.valid_size do
@@ -268,6 +266,7 @@ for i = 1, opt.nb_iteration do
 		end
 
 		ok_valid = ok_valid/opt.valid_size
+		-- Save the model at this iteration
 		perfFileModel:write(i,splitter,ok_test, splitter, ok_train, splitter, ok_valid, splitter, opt.budget, splitter, best_policy, splitter, opt.type_policy,splitter,retour_te.proba_actions[opt.budget][1],splitter, retour_te.proba_actions[opt.budget][2],splitter,retour_te.proba_actions[opt.budget][3], splitter, opt.resolution, splitter, opt.lrc, splitter, opt.lra, splitter, opt.nb_iteration, "\n")
 		model_to_save = {
 			m = model,
@@ -278,6 +277,7 @@ for i = 1, opt.nb_iteration do
 		torch.save("models_"..opt.budget..".mod", modelsToSave)
 	end
 end
+--Close log file
 perfFileModel:close()
 
 
