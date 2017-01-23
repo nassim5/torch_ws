@@ -1,19 +1,19 @@
-** The ReadMe for the Sequential Action Selection Paper **
+**The ReadMe for the Sequential Action Selection Paper**
 
-agent.lua: Class to create a simulated agent with its sensors
+* agent.lua: Class to create a simulated agent with its sensors
 
-maze.lua: Class to create a simulated maze
+* maze.lua: Class to create a simulated maze
 
-model.lua: Class that describes th model
+* model.lua: Class that describes th model
 
-main.lua: main executable
+* main.lua: main executable
 
 
 The command to run the main:
 
-OMP_NUM_THREADS=1 th main.lua [--options] -- direct execution
+* OMP_NUM_THREADS=1 th main.lua [--options] -- direct execution
 
-OMP_NUM_THREADS=1 th -i main.lua [--options] -- interaction at the end of the execution
+* OMP_NUM_THREADS=1 th -i main.lua [--options] -- interaction at the end of the execution
 
 
 [--options]:
