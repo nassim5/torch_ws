@@ -1,4 +1,4 @@
-The ReadMe for the Sequential Action Selection Paper
+<bold>The ReadMe for the Sequential Action Selection Paper</bold>
 
 agent.lua: Class to create a simulated agent with its sensors
 maze.lua: Class to create a simulated maze
