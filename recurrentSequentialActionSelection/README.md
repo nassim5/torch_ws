@@ -1,4 +1,4 @@
-**The ReadMe for the Sequential Action Selection Paper**
+## The ReadMe for the Sequential Action Selection Paper
 
 * agent.lua: Class to create a simulated agent with its sensors
 
