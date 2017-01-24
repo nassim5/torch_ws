@@ -50,9 +50,9 @@ The command to run the main:
 
   - --budget: Number of actions allowed in the model
 
-  - --lrc: Learning Rate of Classifier
+  - --lrc: Learning Rate for representation learning
 
-  - --lra: Learning Rate of Action selection
+  - --lra: Learning Rate for policy gradient
 
   - --N: Size of latent state
 
