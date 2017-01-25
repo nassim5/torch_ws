@@ -1,4 +1,4 @@
-## The ReadMe for the Sequential Action Selection Paper
+## Sequential Action Selection for Budgeted Localization in Robots
 
 * agent.lua: Class to create a simulated agent with its sensors
 
